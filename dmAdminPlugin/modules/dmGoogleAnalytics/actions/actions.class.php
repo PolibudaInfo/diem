@@ -24,11 +24,11 @@ class dmGoogleAnalyticsActions extends dmAdminBaseActions
 
     $this->gapiConnected = false;
     
-    if(dmConfig::get('ga_token'))
+    if(dmConfig::get('ga_email') && dmConfig::get('ga_keyfile'))
     {
       try
       {
-        $this->getService('gapi')->authenticate(null, null, dmConfig::get('ga_token'));
+        $this->getService('gapi')->authenticate(dmConfig::get('ga_email'), dmConfig::get('ga_keyfile'));
         $this->gapiConnected = true;
       }
       catch(dmGapiException $e)

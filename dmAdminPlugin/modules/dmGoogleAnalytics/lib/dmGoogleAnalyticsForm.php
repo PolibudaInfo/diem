@@ -20,32 +20,29 @@ class dmGoogleAnalyticsForm extends dmForm
     $this->widgetSchema['email'] = new sfWidgetFormInputText();
     $this->validatorSchema['email'] = new sfValidatorEmail(array('required' => false));
     $this->widgetSchema->setHelp('email', 'Required to display google analytics data into Diem');
+    $this->setDefault('email', dmConfig::get('ga_email'));
 
-    $this->widgetSchema['password'] = new sfWidgetFormInputPassword();
-    $this->validatorSchema['password'] = new sfValidatorString(array('required' => false));
-    $this->widgetSchema->setHelp('password', 'Required to display google analytics data into Diem');
+    $this->widgetSchema['keyfile'] = new sfWidgetFormInput();
+    $this->validatorSchema['keyfile'] = new sfValidatorString(array('required' => false));
+    $this->widgetSchema->setHelp('keyfile', 'Required to display google analytics data into Diem');
+    $this->setDefault('keyfile', dmConfig::get('ga_keyfile'));
 
     $this->mergePostValidator(new sfValidatorCallback(array('callback' => array($this, 'tokenize'))));
   }
 
   public function tokenize($validator, $values)
   {
-    $values['token'] = null;
-    
-    if($values['email'] || $values['password'])
+    if($values['email'] || $values['keyfile'])
     {
       try
       {
-        $this->gapi->authenticate($values['email'], $values['password']);
-
-        // save token
-        $values['token'] = $this->gapi->getAuthToken();
+        $this->gapi->authenticate($values['email'], $values['keyfile']);
       }
       catch(dmGapiException $e)
       {
-        // probably bad email/password
+        // probably bad email/keyfile
         // throw an error bound to the password field
-        throw new sfValidatorErrorSchema($validator, array('email' => new sfValidatorError($validator, 'Bad email or password')));
+        throw new sfValidatorErrorSchema($validator, array('email' => new sfValidatorError($validator, 'Bad email or keyfile')));
       }
     }
     
@@ -54,9 +51,10 @@ class dmGoogleAnalyticsForm extends dmForm
 
   public function save()
   {
-    if($this->getValue('token'))
+    if($this->getValue('email') && $this->getValue('keyfile'))
     {
-      dmConfig::set('ga_token', $this->getValue('token'));
+      dmConfig::set('ga_email', $this->getValue('email'));
+      dmConfig::set('ga_keyfile', $this->getValue('keyfile'));
     }
   }
 }

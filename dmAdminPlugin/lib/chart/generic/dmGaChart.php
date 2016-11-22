@@ -9,7 +9,7 @@ abstract class dmGaChart extends dmChart
   {
     try
     {
-      $this->gapi = $this->serviceContainer->getService('gapi')->authenticate(null, null, dmConfig::get('ga_token'));
+      $this->gapi = $this->serviceContainer->getService('gapi')->authenticate(dmConfig::get('ga_email'), dmConfig::get('ga_keyfile'));
     }
     catch(dmGapiException $e)
     {
